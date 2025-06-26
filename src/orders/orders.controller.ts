@@ -10,7 +10,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ORDER_SERVICE } from '../config/services';
+import { NATS_SERVICE } from '../config/services';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { OrderPaginationDto } from './dto';
@@ -18,20 +18,18 @@ import { StatusDto } from './dto/status.dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    @Inject(ORDER_SERVICE) private readonly ordersClient: ClientProxy,
-  ) {}
+  constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     console.log({ createOrderDto });
-    return this.ordersClient.send({ cmd: 'createOrder' }, createOrderDto);
+    return this.client.send({ cmd: 'createOrder' }, createOrderDto);
   }
 
   @Get()
   findAll(@Query() orderPaginationDto: OrderPaginationDto) {
     console.log({ orderPaginationDto });
-    return this.ordersClient.send({ cmd: 'findAllOrders' }, orderPaginationDto);
+    return this.client.send({ cmd: 'findAllOrders' }, orderPaginationDto);
   }
 
   @Get('id/:id')
@@ -39,7 +37,7 @@ export class OrdersController {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const order = await firstValueFrom(
-        this.ordersClient.send({ cmd: 'findOneOrder' }, { id }),
+        this.client.send({ cmd: 'findOneOrder' }, { id }),
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -58,7 +56,7 @@ export class OrdersController {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const order = await firstValueFrom(
-        this.ordersClient.send(
+        this.client.send(
           { cmd: 'findAllByStatus' },
           {
             ...orderPaginationDto,
@@ -81,7 +79,7 @@ export class OrdersController {
     @Body() statusDto: StatusDto,
   ) {
     try {
-      return this.ordersClient.send(
+      return this.client.send(
         { cmd: 'changeOrderStatus' },
         {
           status: statusDto.status,
