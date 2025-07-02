@@ -16,6 +16,19 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
     const rpcError = exception.getError();
     console.log({ rpcError });
 
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    if (rpcError.toString().includes('Enpty response')) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      return response.status(500).json({
+        status: 500,
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        message: rpcError
+          .toString()
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          .substring(0, rpcError.toString().indexOf('(') - 1),
+      });
+    }
+
     if (
       typeof rpcError === 'object' &&
       rpcError !== null &&

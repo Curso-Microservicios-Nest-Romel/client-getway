@@ -27,9 +27,18 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@Query() orderPaginationDto: OrderPaginationDto) {
-    console.log({ orderPaginationDto });
-    return this.client.send({ cmd: 'findAllOrders' }, orderPaginationDto);
+  async findAll(@Query() orderPaginationDto: OrderPaginationDto) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const orders = await firstValueFrom(
+        this.client.send({ cmd: 'findAllOrders' }, orderPaginationDto),
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return orders;
+    } catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get('id/:id')
