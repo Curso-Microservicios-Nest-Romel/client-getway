@@ -22,6 +22,7 @@ async function bootstrap() {
   app.useGlobalFilters(new RpcCustomExceptionFilter());
 
   await app.listen(envs.PORT ?? 3000);
+  console.log("Hola Mundo - primer cambio");
   // await app.listen(process.env.PORT ?? 3000);
 
   logger.log(`Application is running on: ${envs.PORT ?? 3000}`);
